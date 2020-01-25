@@ -7,3 +7,6 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 # gem "rails"
 
 gem 'ruby-bare-esi'
+gem 'activesupport'
+
+gem 'standalone_migrations', '~> 5.2', '>= 5.2.7'

@@ -3,6 +3,8 @@ require 'json'
 require 'pp'
 require 'yaml'
 require 'set'
+require 'ruby_bare_esi'
+require 'active_support'
 
 Dir.chdir( __dir__ + '/..' )
 
@@ -31,10 +33,16 @@ def find
 end
 
 def request( url )
-  @requests ||= []
-  request = open( url )
-  @requests += JSON.parse( request.read )
-  sleep 1
+  load_db
+
+  if @old_db[:requests][url] && @old_db[:request][url]
+  else
+    @requests ||= []
+    request = open( url )
+    @requests += JSON.parse( request.read )
+    sleep 1
+  end
+
 end
 
 def analyze_killmails( requests )
@@ -48,15 +56,15 @@ def analyze_killmails( requests )
 
     next if @old_db.include?( r.killmail_id )
 
-    e = RubyBareEsi.new( "killmails/#{r.killmail_id}/#{r.zkb['hash']}/", {}, debug_request: false )
+    e = RubyBareEsi.new( "killmails/#{r.killmail_id}/#{r.zkb['hash']}/", {} )
     page = OpenStruct.new( e.get_page )
     page.killmail_time = DateTime.parse( page.killmail_time )
 
-    if page.killmail_time > Time.now.to_datetime.gmtime - 1.hours
+    if page.killmail_time > Time.now.gmtime.to_datetime - 1.hours
       # p page
 
       page.attackers.each do |attacker|
-        e = Esi::Download.new( "characters/#{attacker['character_id']}/", {}, debug_request: false )
+        e = Esi::Download.new( "characters/#{attacker['character_id']}/", {} )
 
         next unless attacker['character_id']
 
@@ -64,7 +72,7 @@ def analyze_killmails( requests )
         name = character.name
         id = attacker['character_id']
 
-        e = RubyBareEsi.new( "universe/systems/#{page.solar_system_id}/", {}, debug_request: false )
+        e = RubyBareEsi.new( "universe/systems/#{page.solar_system_id}/", {} )
         system_data = OpenStruct.new( e.get_page )
         system_name = system_data.name
 
@@ -85,7 +93,7 @@ end
 
 def load_db
   # Misc::Banner.p 'DB loaded'
-  @old_db = ( File.file?( DB_FILE ) ? YAML.load_file( DB_FILE ) : Set.new )
+  @old_db = ( File.file?( DB_FILE ) ? YAML.load_file( DB_FILE ) : { requests: {} } )
 end
 
 def save_db
