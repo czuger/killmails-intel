@@ -8,6 +8,10 @@ require 'active_support'
 require 'active_record'
 require 'sqlite3'
 
+require_relative '../models/old_killmails_request'
+
+# ActiveRecord::Base.logger = Logger.new(STDOUT)
+
 Dir.chdir( __dir__ + '/..' )
 
 targets = YAML.load_file('targets.yml')
@@ -18,9 +22,6 @@ SYSTEMS = targets[:systems]
 db_config = YAML.load_file('db/config.yml')
 p db_config
 ActiveRecord::Base.establish_connection db_config['development']
-
-class OldKillmailsRequest < ActiveRecord::Base
-end
 
 def find
   p 'Individuals'
@@ -42,19 +43,7 @@ end
 
 def request( url )
   @requests ||= []
-
-  old_k = OldKillmailsRequest.find_by_url( url )
-  if old_k
-    @requests += JSON.parse( old_k.result )
-  else
-    request = open( url )
-    result = request.read
-    @requests += JSON.parse( result )
-
-    OldKillmailsRequest.create!( url: url, result: result )
-    sleep 1
-  end
-
+  @requests += JSON.parse(OldKillmailsRequest.get(url))
 end
 
 def analyze_killmails( requests )
