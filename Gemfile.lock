@@ -56,6 +56,7 @@ GEM
       thor (>= 0.19.0, < 2.0)
     rake (13.0.1)
     ruby-bare-esi (0.0.1)
+    sqlite3 (1.4.1)
     standalone_migrations (5.2.7)
       activerecord (>= 4.2.7, < 5.3.0)
       railties (>= 4.2.7, < 5.3.0)
@@ -69,8 +70,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activerecord
   activesupport
   ruby-bare-esi
+  sqlite3
   standalone_migrations (~> 5.2, >= 5.2.7)
 
 BUNDLED WITH

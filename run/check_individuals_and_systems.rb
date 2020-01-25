@@ -5,6 +5,8 @@ require 'yaml'
 require 'set'
 require 'ruby_bare_esi'
 require 'active_support'
+require 'active_record'
+require 'sqlite3'
 
 Dir.chdir( __dir__ + '/..' )
 
@@ -12,7 +14,13 @@ targets = YAML.load_file('targets.yml')
 
 INDIVIDUALS = targets[:individuals]
 SYSTEMS = targets[:systems]
-DB_FILE = 'tmp/old_killmails.yaml'
+
+db_config = YAML.load_file('db/config.yml')
+p db_config
+ActiveRecord::Base.establish_connection db_config['development']
+
+class OldKillmailsRequest < ActiveRecord::Base
+end
 
 def find
   p 'Individuals'
@@ -33,13 +41,17 @@ def find
 end
 
 def request( url )
-  load_db
+  @requests ||= []
 
-  if @old_db[:requests][url] && @old_db[:request][url]
+  old_k = OldKillmailsRequest.find_by_url( url )
+  if old_k
+    @requests += JSON.parse( old_k.result )
   else
-    @requests ||= []
     request = open( url )
-    @requests += JSON.parse( request.read )
+    result = request.read
+    @requests += JSON.parse( result )
+
+    OldKillmailsRequest.create!( url: url, result: result )
     sleep 1
   end
 

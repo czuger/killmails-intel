@@ -12,11 +12,12 @@
 
 ActiveRecord::Schema.define(version: 2020_01_25_122835) do
 
-  create_table "products", force: :cascade do |t|
+  create_table "old_killmails_requests", force: :cascade do |t|
     t.string "url"
     t.string "result"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["url"], name: "index_old_killmails_requests_on_url"
   end
 
 end
