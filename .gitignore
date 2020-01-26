@@ -60,3 +60,5 @@ build-iPhoneSimulator/
 targets.yml
 target_d.yml
 *.sqlite3
+
+index.html

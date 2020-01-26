@@ -1,5 +1,7 @@
-development:
+development: &id001
   adapter: sqlite3
   database: db/cache.sqlite3
   pool: 5
   timeout: 5000
+
+production: *id001
