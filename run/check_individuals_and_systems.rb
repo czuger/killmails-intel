@@ -51,13 +51,13 @@ def analyze_killmails( requests )
 
   puts "#{requests.count} individuals to check"
 
+  f = File.open('tmp/killmails-intel.html', 'w')
+  f.puts('<table border="1">')
+
   requests.each do |r|
     r = OpenStruct.new( r )
-    # r.zkb = OpenStruct.new( r.zkb )
 
     kill_mail_url = "killmails/#{r.killmail_id}/#{r.zkb['hash']}/"
-    next if OldEsiRequest.where( url: kill_mail_url ).exists?
-
     page = OldEsiRequest.get( kill_mail_url )
     page.killmail_time = DateTime.parse( page.killmail_time )
 
@@ -75,10 +75,12 @@ def analyze_killmails( requests )
         system_name = system_data.name
 
         time = page.killmail_time.localtime
-        puts "#{name}(#{id}) spotted in #{system_name} at #{time}"
+        f.puts "<tr><td style=\"padding:10px\">#{name}(#{id})</td><td style=\"padding:10px\">#{system_name}</td><td style=\"padding:10px\">#{time}</td></tr>"
       end
     end
   end
+
+  f.puts('</table>')
 
 end
 
