@@ -1,6 +1,6 @@
 # Killmails-intel
 
-My persona EVE Online intel too
+My personal EVE Online intel tool
 
 ## Usage
 
