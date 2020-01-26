@@ -67,11 +67,11 @@ def analyze_killmails( requests )
       page.attackers.each do |attacker|
         next unless attacker['character_id']
 
-        character = OldEsiRequest.get( "characters/#{attacker['character_id']}/" )
+        character = OldEsiRequest.get( "characters/#{attacker['character_id']}/", permanent: true )
         name = character.name
         id = attacker['character_id']
 
-        system_data = OldEsiRequest.get( "universe/systems/#{page.solar_system_id}/" )
+        system_data = OldEsiRequest.get( "universe/systems/#{page.solar_system_id}/", permanent: true )
         system_name = system_data.name
 
         time = page.killmail_time.localtime
@@ -83,3 +83,5 @@ def analyze_killmails( requests )
 end
 
 find
+
+OldEsiRequest.purge
