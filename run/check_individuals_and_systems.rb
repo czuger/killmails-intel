@@ -13,7 +13,7 @@ require_relative '../models/old_esi_request'
 
 # ActiveRecord::Base.logger = Logger.new(STDOUT)
 
-Dir.chdir( __dir__ + '/..' )
+# Dir.chdir( __dir__ + '/..' )
 
 targets = YAML.load_file('targets.yml')
 
