@@ -51,7 +51,7 @@ def analyze_killmails( requests )
 
   puts "#{requests.count} individuals to check"
 
-  f = File.open('tmp/index.html', 'w')
+  f = File.open('html/index.html', 'w')
   f.puts('<table border="1">')
 
   requests.each do |r|
