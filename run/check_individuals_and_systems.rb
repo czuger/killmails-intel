@@ -75,7 +75,8 @@ def analyze_killmails( requests )
         system_name = system_data.name
 
         time = page.killmail_time.localtime
-        f.puts "<tr><td style=\"padding:10px\">#{name}(#{id})</td><td style=\"padding:10px\">#{system_name}</td><td style=\"padding:10px\">#{time}</td></tr>"
+        f.puts "<tr><td style=\"padding:10px\">#{name}(#{id})</td><td style=\"padding:10px\">#{system_name}</td>
+          <td style=\"padding:10px\">#{time}</td><td style=\"padding:10px\">#{Time.now}</td></tr>"
       end
     end
   end

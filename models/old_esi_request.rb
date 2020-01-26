@@ -12,7 +12,7 @@ class OldEsiRequest < OldRequest
       old_k.touch if permanent
     else
       e = RubyBareEsi.new( url, {} )
-      result = e.get_page
+      result = e.get_page_retry_on_error
 
       old_k = self.new( url: url, result: result.to_json )
     end
