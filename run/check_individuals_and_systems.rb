@@ -9,6 +9,7 @@ require 'active_record'
 require 'sqlite3'
 
 require_relative '../models/old_killmails_request'
+require_relative '../models/old_esi_request'
 
 # ActiveRecord::Base.logger = Logger.new(STDOUT)
 
@@ -47,7 +48,6 @@ def request( url )
 end
 
 def analyze_killmails( requests )
-  load_db
 
   puts "#{requests.count} individuals to check"
 
@@ -55,54 +55,31 @@ def analyze_killmails( requests )
     r = OpenStruct.new( r )
     # r.zkb = OpenStruct.new( r.zkb )
 
-    next if @old_db.include?( r.killmail_id )
+    kill_mail_url = "killmails/#{r.killmail_id}/#{r.zkb['hash']}/"
+    next if OldEsiRequest.where( url: kill_mail_url ).exists?
 
-    e = RubyBareEsi.new( "killmails/#{r.killmail_id}/#{r.zkb['hash']}/", {} )
-    page = OpenStruct.new( e.get_page )
+    page = OldEsiRequest.get( kill_mail_url )
     page.killmail_time = DateTime.parse( page.killmail_time )
 
     if page.killmail_time > Time.now.gmtime.to_datetime - 1.hours
       # p page
 
       page.attackers.each do |attacker|
-        e = Esi::Download.new( "characters/#{attacker['character_id']}/", {} )
-
         next unless attacker['character_id']
 
-        character = OpenStruct.new( e.get_page )
+        character = OldEsiRequest.get( "characters/#{attacker['character_id']}/" )
         name = character.name
         id = attacker['character_id']
 
-        e = RubyBareEsi.new( "universe/systems/#{page.solar_system_id}/", {} )
-        system_data = OpenStruct.new( e.get_page )
+        system_data = OldEsiRequest.get( "universe/systems/#{page.solar_system_id}/" )
         system_name = system_data.name
 
         time = page.killmail_time.localtime
         puts "#{name}(#{id}) spotted in #{system_name} at #{time}"
       end
-    else
-      # puts "#{page.killmail_id} too old : #{page.killmail_time}"
-      # p page.killmail_id
-      # p @old_db
-      @old_db << page.killmail_id
-      # p @old_db
     end
   end
 
-  save_db
-end
-
-def load_db
-  # Misc::Banner.p 'DB loaded'
-  @old_db = ( File.file?( DB_FILE ) ? YAML.load_file( DB_FILE ) : { requests: {} } )
-end
-
-def save_db
-  File.open( DB_FILE, 'w' ) do |f|
-    f.write( @old_db.to_yaml )
-  end
-
-  # Misc::Banner.p 'DB saved'
 end
 
 find

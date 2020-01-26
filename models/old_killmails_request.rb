@@ -1,6 +1,6 @@
 require 'pp'
-
-class OldKillmailsRequest < ActiveRecord::Base
+require_relative 'old_request'
+class OldKillmailsRequest < OldRequest
 
   def self.get(url)
     old_k = self.find_by_url( url )
@@ -20,14 +20,6 @@ class OldKillmailsRequest < ActiveRecord::Base
 
     old_k.save!
     result
-  end
-
-  private
-
-  def self.get_from_web( url )
-    sleep 1
-    request = open( url )
-    request.read
   end
 
 end
